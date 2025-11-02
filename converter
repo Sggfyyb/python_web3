@@ -1,0 +1,23 @@
+class ToAmount:
+    def __init__(self,amount:str|Decimal|float|int, decimals: int = 18, from_wei:bool = False):
+        if from_wei:
+            self.wei = amount
+            self.ether = int(Decimal(str(amount)) / 10 **decimals)
+
+        else:
+            self.wei = int(Decimal(str(amount)) * 10 **decimals)
+            self.ether = Decimal(str(amount))
+
+
+
+    @staticmethod
+    async def from_usd( usdc: int|float, token_symbol:str):
+            token_price = await Connector.token_price(token_symbol)
+            if token_price>0:
+                token_amount = Decimal(str(usdc)) / Decimal(str(token_price))
+                return ToAmount(token_amount)
+            else:
+                print("Couldn't find the price")
+
+    def __str__(self):
+        return f'{self.ether} tokens ({self.wei} wei)'
